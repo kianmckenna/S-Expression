@@ -58,40 +58,41 @@ void SExpression::parseList(const std::vector<Token>& tokens, size_t& position)
     cdr->parseList(tokens, position);
 }
 
-void SExpression::print()
+void SExpression::print(std::ostream &output)
 {
+
     if (type == ExpressionType::Atom)
     {
-        std::cout << atom;
+        output << atom;
         return;
     }
 
     if (type == ExpressionType::Nil)
     {
-        std::cout << "()";
+        output << "()";
         return;
     }
 
     if (type == ExpressionType::Pair)
     {
-        std::cout << "(";
-        printList();
-        std::cout << ")";
+        output << "(";
+        printList(output);
+        output << ")";
     }
 }
 
-void SExpression::printList()
+void SExpression::printList(std::ostream &output)
 {
-    car->print();
+    car->print(output);
 
     if (cdr->type == ExpressionType::Nil)
     {
         return;
     }
 
-    std::cout << " ";
+    output << " ";
 
-    cdr->printList();
+    cdr->printList(output);
 }
 
 SExpression::~SExpression()

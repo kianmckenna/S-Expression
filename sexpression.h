@@ -1,9 +1,11 @@
 #ifndef SEXPRESSION_H
 #define SEXPRESSION_H
 
+#include "token.h"
+
 #include <string>
 #include <vector>
-#include "token.h"
+#include <ostream>
 
 enum class ExpressionType
 {
@@ -25,11 +27,11 @@ public:
     ~SExpression();
 
     void parse(const std::vector<Token>& tokens, size_t& position);
-    void print();
+    void print(std::ostream &output);
 
 private:
     void parseList(const std::vector<Token>& tokens, size_t& position);
-    void printList();
+    void printList(std::ostream &output);
 };
 
 #endif

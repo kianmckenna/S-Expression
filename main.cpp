@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <filesystem>
 #include <vector>
 #include <cctype>
 #include <sstream>
@@ -14,16 +13,16 @@ vector<Token> tokenize(const string &input);
 
 int main()
 {
-    ifstream file("../input.txt");
-
-    stringstream buffer;
-    buffer << file.rdbuf();
+    ifstream file("input.txt");
 
     if (!file.is_open())
     {
         cout << "Error opening file" << endl;
         return 1;
     }
+
+    stringstream buffer;
+    buffer << file.rdbuf();
 
     string input = buffer.str();
 
@@ -33,14 +32,18 @@ int main()
 
     size_t position = 0;
 
+    ofstream output("output.txt");
+
     while (position < tokens.size())
     {
         SExpression expr;
         expr.parse(tokens, position);
-        expr.print();
+        expr.print(output);
 
-        cout << endl;
+        output << endl;
     }
+
+    output.close();
 
     return 0;
 }
