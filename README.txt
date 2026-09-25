@@ -1,4 +1,4 @@
-Project 1.1 - Read/Print S-Expressions
+Project 1.2 - List Operations
 
 Language:
 C++17

@@ -38,9 +38,13 @@ int main()
     {
         SExpression expr;
         expr.parse(tokens, position);
-        expr.print(output);
 
-        output << endl;
+        SExpression* result = eval(expr);
+
+        result->print(output);
+        output << '\n';
+
+        delete result;
     }
 
     output.close();
@@ -55,7 +59,17 @@ vector<Token> tokenize(const string &input)
 
     for (char c : input)
     {
-        if (c == '(')
+        if (c == '\'')
+        {
+            if (!current.empty())
+            {
+                tokens.push_back({TokenType::Atom, current});
+                current.clear();
+            }
+
+            tokens.push_back({TokenType::Quote, "\'"});
+        }
+        else if (c == '(')
         {
             if (!current.empty())
             {

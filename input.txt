@@ -1,9 +1,17 @@
-() a 45 test
+(car (quote (a b c)))
 
-(1 2 3)
+(cdr (quote (a b c)))
 
-((1 2 3) (a b c) )
+(cons (quote a) (quote ()))
 
-( ( ) ( ) ( ) ) 
+(cons (quote a) (quote b))
 
-(() a 45 test (1 2 3) ((1 2 3) (a b c) ) ( ( ) ( ) ( ) ))
+(quote (car x))
+
+(eval (car (quote (a b c))))
+
+(eval (cdr (quote (a b c))))
+
+'a
+
+'(car x)

@@ -7,7 +7,8 @@ enum class TokenType
 {
     Atom,
     LeftParen,
-    RightParen
+    RightParen,
+    Quote
 };
 
 struct Token
