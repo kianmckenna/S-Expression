@@ -1,17 +1,26 @@
-(car (quote (a b c)))
+(set a 2)
+a
+x
 
-(cdr (quote (a b c)))
+(set b 4)
+b
 
-(cons (quote a) (quote ()))
+(set a 7)
+a
 
-(cons (quote a) (quote b))
+(nil? ())
+(nil? 'T)
 
-(quote (car x))
+(atom? x)
+(atom? '(x))
 
-(eval (car (quote (a b c))))
+(list? 'T)
+(list? x)
+(list? '(x))
 
-(eval (cdr (quote (a b c))))
+(not? ())
+(not? 'T)
 
-'a
-
-'(car x)
+(number? 42)
+(number? -17)
+(number? abc)

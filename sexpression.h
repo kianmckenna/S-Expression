@@ -31,13 +31,14 @@ public:
     void parse(const std::vector<Token>& tokens, size_t& position);
     void print(std::ostream& output);
 
-private:
-    void parseList(const std::vector<Token>& tokens, size_t& position);
-    void printList(std::ostream& output);
-
     bool isAtom() const;
     bool isNil() const;
     bool isPair() const;
+
+private:
+
+    void parseList(const std::vector<Token>& tokens, size_t& position);
+    void printList(std::ostream& output);
 };
 
 SExpression* car(const SExpression& expr);
