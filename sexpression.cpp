@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <string>
+#include <cctype>
 
 // global variable holder rho
 SExpression* rho = new SExpression();
@@ -313,6 +314,56 @@ SExpression* numberPredicate(const SExpression& expr)
     return makeTrue();
 }
 
+SExpression* andPredicate(const SExpression& first, const SExpression& second)
+{
+    SExpression* arg1 = eval(first);
+
+    if (arg1->isNil())
+    {
+        delete arg1;
+        return makeFalse();
+    }
+
+    SExpression* arg2 = eval(second);
+
+    if (arg2->isNil())
+    {
+        delete arg1;
+        delete arg2;
+        return makeFalse();
+    }
+
+    delete arg1;
+    delete arg2;
+
+    return makeTrue();
+}
+
+SExpression* orPredicate(const SExpression& first, const SExpression& second)
+{
+    SExpression* arg1 = eval(first);
+
+    if (!arg1->isNil())
+    {
+        delete arg1;
+        return makeTrue();
+    }
+
+    SExpression* arg2 = eval(second);
+
+    if (!arg2->isNil())
+    {
+        delete arg1;
+        delete arg2;
+        return makeTrue();
+    }
+
+    delete arg1;
+    delete arg2;
+
+    return makeFalse();
+}
+
 SExpression* listPredicate(const SExpression& expr)
 {
     if (expr.isPair())
@@ -321,6 +372,287 @@ SExpression* listPredicate(const SExpression& expr)
     }
 
     return makeFalse();
+}
+
+SExpression* eqPredicate(const SExpression& first, const SExpression& second)
+{
+    if (!first.isAtom() || !second.isAtom())
+    {
+        return makeFalse();
+    }
+
+    if (first.atom != second.atom)
+    {
+        return makeFalse();
+    }
+
+
+    return makeTrue();
+}
+
+SExpression* ifPredicate(const SExpression& a0, const SExpression& a1, const SExpression& a2)
+{
+    SExpression* condition = eval(a0);
+
+    if (condition->isNil())
+    {
+        delete condition;
+        return eval(a2);
+    } 
+    else
+    {
+        delete condition;
+        return eval(a1);
+    }
+}
+
+SExpression* condPredicate(const SExpression& list)
+{
+    const SExpression* current = &list;
+
+    while (!current->isNil())
+    {
+        SExpression* condition = eval(*current->car);
+
+        if (!condition->isNil())
+        {
+            delete condition;
+
+            return eval(*current->cdr->car);
+        }
+
+        delete condition;
+
+        current = current->cdr->cdr;
+    }
+
+    throw std::runtime_error("last expression must be 'T");
+}
+
+int toNumber(SExpression* expr)
+{
+    return std::stoi(expr->atom);
+}
+
+SExpression* makeNumber(int num)
+{
+    SExpression* result = new SExpression();
+
+    result->atom = std::to_string(num);
+    result->type = ExpressionType::Atom;
+
+    return result;
+}
+
+bool isNumber(const SExpression& expr)
+{
+    SExpression* condition = numberPredicate(expr);
+
+    if (condition->isNil())
+    {
+        delete condition;
+        return false;
+    }
+
+    delete condition;
+    return true;
+}
+
+SExpression* lessThan(const SExpression& arg1, const SExpression& arg2)
+{
+    SExpression* first = eval(arg1);
+
+    if (!isNumber(*first))
+    {
+        delete first;
+        throw std::runtime_error("first operand is not a number");
+    }
+
+    int left = toNumber(first);
+
+    SExpression* second = eval(arg2);
+
+    if (!isNumber(*second))
+    {
+        delete first;
+        delete second;
+
+        throw std::runtime_error("second operand is not a number");
+    }
+
+    int right = toNumber(second);
+
+    delete first;
+    delete second;
+
+    bool lessThan = left < right;
+
+    if (lessThan)
+    {
+        return makeTrue();
+    }
+
+    return makeFalse();
+}
+
+SExpression* rem(const SExpression& arg1, const SExpression& arg2)
+{
+    SExpression* first = eval(arg1);
+
+    if (!isNumber(*first))
+    {
+        delete first;
+        throw std::runtime_error("first operand is not a number");
+    }
+
+    int left = toNumber(first);
+
+    SExpression* second = eval(arg2);
+
+    if (!isNumber(*second))
+    {
+        delete first;
+        delete second;
+
+        throw std::runtime_error("second operand is not a number");
+    }
+
+    int right = toNumber(second);
+
+    delete first;
+    delete second;
+
+    SExpression* result = makeNumber(left % right);
+
+    return result;
+}
+
+SExpression* div(const SExpression& arg1, const SExpression& arg2)
+{
+    SExpression* first = eval(arg1);
+
+    if (!isNumber(*first))
+    {
+        delete first;
+        throw std::runtime_error("first operand is not a number");
+    }
+
+    int left = toNumber(first);
+
+    SExpression* second = eval(arg2);
+
+    if (!isNumber(*second))
+    {
+        delete first;
+        delete second;
+
+        throw std::runtime_error("second operand is not a number");
+    }
+
+    int right = toNumber(second);
+
+    delete first;
+    delete second;
+
+    SExpression* result = makeNumber(left / right);
+
+    return result;
+}
+
+SExpression* mul(const SExpression& arg1, const SExpression& arg2)
+{
+    SExpression* first = eval(arg1);
+
+    if (!isNumber(*first))
+    {
+        delete first;
+        throw std::runtime_error("first operand is not a number");
+    }
+
+    int left = toNumber(first);
+
+    SExpression* second = eval(arg2);
+
+    if (!isNumber(*second))
+    {
+        delete first;
+        delete second;
+
+        throw std::runtime_error("second operand is not a number");
+    }
+
+    int right = toNumber(second);
+
+    delete first;
+    delete second;
+
+    SExpression* result = makeNumber(left * right);
+
+    return result;
+}
+
+SExpression* sub(const SExpression& arg1, const SExpression& arg2)
+{
+    SExpression* first = eval(arg1);
+
+    if (!isNumber(*first))
+    {
+        delete first;
+        throw std::runtime_error("first operand is not a number");
+    }
+
+    int left = toNumber(first);
+
+    SExpression* second = eval(arg2);
+
+    if (!isNumber(*second))
+    {
+        delete first;
+        delete second;
+
+        throw std::runtime_error("second operand is not a number");
+    }
+
+    int right = toNumber(second);
+
+    delete first;
+    delete second;
+
+    SExpression* result = makeNumber(left - right);
+
+    return result;
+}
+
+SExpression* add(const SExpression& arg1, const SExpression& arg2)
+{
+    SExpression* first = eval(arg1);
+
+    if (!isNumber(*first))
+    {
+        delete first;
+        throw std::runtime_error("first operand is not a number");
+    }
+
+    int left = toNumber(first);
+
+    SExpression* second = eval(arg2);
+
+    if (!isNumber(*second))
+    {
+        delete first;
+        delete second;
+
+        throw std::runtime_error("second operand is not a number");
+    }
+
+    int right = toNumber(second);
+
+    delete first;
+    delete second;
+
+    SExpression* result = makeNumber(left + right);
+
+    return result;
 }
 
 SExpression* eval(const SExpression& expr)
@@ -458,11 +790,118 @@ SExpression* eval(const SExpression& expr)
 
     if (function == "number?")
     {
-        std::cout << "checking num";
         SExpression* argument = eval(*expr.cdr->car);
         SExpression* result = numberPredicate(*argument);
 
         delete argument;
+
+        return result;
+    }
+
+    // remember to add short circuiting
+
+    if (function == "and?")
+    {
+        SExpression& first = *expr.cdr->car;
+        SExpression& second = *expr.cdr->cdr->car;
+        SExpression* result = andPredicate(first, second);
+
+        return result;
+    }
+
+    if (function == "or?")
+    {
+        SExpression& first = *expr.cdr->car;
+        SExpression& second = *expr.cdr->cdr->car;
+        SExpression* result = orPredicate(first, second);
+
+        return result;
+    }
+
+    if (function == "eq?")
+    {
+        SExpression* first = eval(*expr.cdr->car);
+        SExpression* second = eval(*expr.cdr->cdr->car);
+        SExpression* result = eqPredicate(*first, *second);
+
+        delete first;
+        delete second;
+
+        return result;
+    }
+
+    if (function == "if")
+    {
+        const SExpression& a0 = *expr.cdr->car;
+        const SExpression& a1 = *expr.cdr->cdr->car;
+        const SExpression& a2 = *expr.cdr->cdr->cdr->car;
+
+       return ifPredicate(a0, a1, a2);
+    }
+
+    if (function == "cond")
+    {
+        const SExpression* list = expr.cdr->car;
+
+        return condPredicate(*list);
+    }
+
+    if (function == "add")
+    {
+        const SExpression& arg1 = *expr.cdr->car;
+        const SExpression& arg2 = *expr.cdr->cdr->car;
+
+        SExpression* result = add(arg1, arg2);
+
+        return result;
+    }
+
+    if (function == "sub")
+    {
+        const SExpression& arg1 = *expr.cdr->car;
+        const SExpression& arg2 = *expr.cdr->cdr->car;
+
+        SExpression* result = sub(arg1, arg2);
+
+        return result;
+    }
+
+    if (function == "mul")
+    {
+        const SExpression& arg1 = *expr.cdr->car;
+        const SExpression& arg2 = *expr.cdr->cdr->car;
+
+        SExpression* result = mul(arg1, arg2);
+
+        return result;
+    }
+
+    if (function == "div")
+    {
+        const SExpression& arg1 = *expr.cdr->car;
+        const SExpression& arg2 = *expr.cdr->cdr->car;
+
+        SExpression* result = div(arg1, arg2);
+
+        return result;
+    }
+
+    if (function == "rem")
+    {
+        const SExpression& arg1 = *expr.cdr->car;
+        const SExpression& arg2 = *expr.cdr->cdr->car;
+
+        SExpression* result = rem(arg1, arg2);
+
+        return result;
+    }
+
+    if (function == "lt")
+    {
+        const SExpression& arg1 = *expr.cdr->car;
+        const SExpression& arg2 = *expr.cdr->cdr->car;
+
+        SExpression* result = lessThan(arg1, arg2);
 
         return result;
     }

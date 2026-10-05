@@ -1,6 +1,6 @@
 Kian McKenna CWID: 12342170
 
-Project 1.3 - Global Values
+Project 1.4 and 1.5 - Logical and Math
 
 Language:
 C++17
@@ -18,12 +18,15 @@ Output from final test:
 output.txt
 
 Summary:
-Implemented global variables that you can set a retrieve the value of. Also implemented predicate functions
-needed to move forward as well as number? and not?
+implemented program flow with if and cond as well as useful boolean functions. math operations
+were implmented as well as one relational function.
 
 Test:
 the input.txt file contains examples from the instructions we were given. the file can be manipulated
 to test any variable operation or predicate function. the output.txt file contains the output from the parsed S-Expressions
+
+Implementation note:
+The assignment leaves the return value of set undefined. In this implementation, set returns the evaluated value that was assigned.
 
 Known deficiencies:
 None

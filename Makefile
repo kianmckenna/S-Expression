@@ -1,5 +1,5 @@
 CXX ?= g++
-CXXFLAGS ?= -std=c++17 -Wall -Wextra
+CXXFLAGS ?= -std=c++17 -Wall -Wextra -g
 
 TARGET = S_Expr_2
 OBJS = main.o sexpression.o

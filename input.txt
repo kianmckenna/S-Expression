@@ -1,15 +1,28 @@
+'a
+'(a b c)
+(quote (car x))
+
+(car '(a b c))
+(cdr '(a b c))
+(cons 'a '())
+(cons 'a 'b)
+(cons 'a '(b c))
+
+(eval '(car '(a b c)))
+(eval '(cdr '(a b c)))
+
 (set a 2)
 a
 x
-
 (set b 4)
 b
-
 (set a 7)
 a
 
 (nil? ())
 (nil? 'T)
+(not? ())
+(not? 'T)
 
 (atom? x)
 (atom? '(x))
@@ -18,9 +31,52 @@ a
 (list? x)
 (list? '(x))
 
-(not? ())
-(not? 'T)
-
 (number? 42)
 (number? -17)
+(number? 0)
 (number? abc)
+(number? 12a)
+
+(eq? 'a 'a)
+(eq? 'a 'b)
+(eq? () ())
+(eq? '(a) '(a))
+
+(and? 'T 'T)
+(and? 'T ())
+(and? () 'T)
+
+(or? 'T ())
+(or? () 'T)
+(or? () ())
+
+(and? () (car 'a))
+(or? 'T (car 'a))
+
+(if 'T 'yes 'no)
+(if () 'yes 'no)
+(if (nil? ()) 'yes 'no)
+(if (nil? 'T) 'yes 'no)
+
+(cond ('T first))
+(cond (() first 'T second))
+(cond (() first () second 'T third))
+(cond ((nil? ()) first 'T second))
+(cond ((nil? 'T) first 'T second))
+(cond ('T first 'T second 'T third))
+
+(add 2 3)
+(add -2 7)
+(sub 10 3)
+(sub 3 10)
+(mul 6 7)
+(div 7 2)
+(rem 7 2)
+
+(lt 1 2)
+(lt 2 1)
+(lt 2 2)
+
+(add (mul 2 3) 4)
+(sub (add 10 5) (mul 2 3))
+(lt (add 1 2) (mul 2 2))
