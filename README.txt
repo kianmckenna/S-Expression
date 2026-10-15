@@ -1,6 +1,6 @@
 Kian McKenna CWID: 12342170
 
-Project 1.4 and 1.5 - Logical and Math
+Project 1.8 - def syntactic sugar
 
 Language:
 C++17
@@ -18,12 +18,11 @@ Output from final test:
 output.txt
 
 Summary:
-implemented program flow with if and cond as well as useful boolean functions. math operations
-were implmented as well as one relational function.
+added def to lisp
 
 Test:
-the input.txt file contains examples from the instructions we were given. the file can be manipulated
-to test any variable operation or predicate function. the output.txt file contains the output from the parsed S-Expressions
+the input file contains an example using def and the output file contains the 
+resulting S-Expression (function (argils) S-Expression-Body)
 
 Implementation note:
 The assignment leaves the return value of set undefined. In this implementation, set returns the evaluated value that was assigned.

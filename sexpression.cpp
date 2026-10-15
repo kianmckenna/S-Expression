@@ -8,6 +8,9 @@
 // global variable holder rho
 SExpression* rho = new SExpression();
 
+// local variable stack
+SExpression* stack = new SExpression();
+
 SExpression* makeTrue()
 {
     SExpression* result = new SExpression();
@@ -104,23 +107,35 @@ void SExpression::parseList(const std::vector<Token>& tokens, size_t& position)
 
 void SExpression::print(std::ostream &output)
 {
-    if (type == ExpressionType::Atom)
+    bool shouldPrint = true;
+    if (isPair() && car->isAtom())
     {
-        output << atom;
-        return;
+        if (car->atom == "set" || car->atom == "def" || car->atom == "function")
+        {
+            shouldPrint = false;
+        }
     }
 
-    if (type == ExpressionType::Nil)
+    if (shouldPrint)
     {
-        output << "()";
-        return;
-    }
+        if (isAtom())
+        {
+            output << atom;
+            return;
+        }
 
-    if (type == ExpressionType::Pair)
-    {
-        output << "(";
-        printList(output);
-        output << ")";
+        if (isNil())
+        {
+            output << "()";
+            return;
+        }
+
+        if (isPair())
+        {
+            output << "(";
+            printList(output);
+            output << ")";
+        }
     }
 }
 
@@ -128,12 +143,12 @@ void SExpression::printList(std::ostream &output)
 {
     car->print(output);
 
-    if (cdr->type == ExpressionType::Nil)
+    if (cdr->isNil())
     {
         return;
     }
 
-    if (cdr->type == ExpressionType::Pair)
+    if (cdr->isPair())
     {
         output << " ";
         cdr->printList(output);
@@ -188,9 +203,35 @@ bool SExpression::isPair() const
 
 SExpression* lookup(const SExpression& symbol)
 {
-    SExpression* current = rho;
+    SExpression* current = stack;
 
-    while (current->type == ExpressionType::Pair)
+    while (current->isPair())
+    {
+        SExpression* frame = current->car;
+
+        SExpression* names = frame->car;
+        SExpression* values = frame->cdr->car;
+
+        while (names->isPair() && values->isPair())
+        {
+            SExpression* name = names->car;
+            SExpression* val = values->car;
+
+            if (name->atom == symbol.atom)
+            {
+                return val->clone();
+            }
+
+            names = names->cdr;
+            values = values->cdr;
+        }
+
+        current = current->cdr;
+    }
+
+    current = rho;
+
+    while (current->isPair())
     {
         SExpression* bind = current->car;
 
@@ -655,6 +696,52 @@ SExpression* add(const SExpression& arg1, const SExpression& arg2)
     return result;
 }
 
+SExpression* evalArgs(const SExpression& arguments)
+{
+    if (arguments.isNil())
+    {
+        return arguments.clone();
+    }
+
+    SExpression* first = eval(*arguments.car);
+    SExpression* rest = evalArgs(*arguments.cdr);
+
+    SExpression* result = cons(*first, *rest);
+
+    delete first;
+    delete rest;
+
+    return result;
+}
+
+void pushStack(const SExpression& names, const SExpression& values)
+{
+    SExpression nil;
+
+    SExpression* valueList = cons(values, nil);
+    SExpression* frame = cons(names, *valueList);
+
+    SExpression* newStack = cons(*frame, *stack);
+    delete stack;
+    stack = newStack;
+
+    delete frame;
+    delete valueList;
+}
+
+void popStack()
+{
+    if (stack->isNil())
+    {
+        return;
+    }
+
+    SExpression* newStack = stack->cdr->clone();
+
+    delete stack;
+    stack = newStack;
+}
+
 SExpression* eval(const SExpression& expr)
 {
     if (expr.isNil())
@@ -798,8 +885,6 @@ SExpression* eval(const SExpression& expr)
         return result;
     }
 
-    // remember to add short circuiting
-
     if (function == "and?")
     {
         SExpression& first = *expr.cdr->car;
@@ -905,6 +990,65 @@ SExpression* eval(const SExpression& expr)
 
         return result;
     }
+
+    if (function == "def")
+    {
+        SExpression* funcName = expr.cdr->car;
+
+        SExpression nil;
+
+        SExpression* args = expr.cdr->cdr->car;
+        SExpression* body = expr.cdr->cdr->cdr->car;
+
+        SExpression* temp = cons(*body, nil);
+        SExpression* argsAndBody = cons(*args, *temp);
+
+        SExpression functionAtom;
+        functionAtom.atom = "function";
+        functionAtom.type = ExpressionType::Atom;
+
+        SExpression* def = cons(functionAtom, *argsAndBody);
+
+        delete temp;
+        delete argsAndBody;
+
+        SExpression* bind = set(*funcName, *def);
+        SExpression* newRho = cons(*bind, *rho);
+
+        delete rho;
+        rho = newRho;
+
+        delete bind;
+
+        return def;
+    }
+
+    if (function == "function")
+    {
+        return expr.clone();
+    }
+
+    SExpression* funcDef = lookup(*expr.car);
+
+    if (funcDef->isPair() && funcDef->car->isAtom() && funcDef->car->atom == "function")
+    {
+        SExpression* arguments = evalArgs(*expr.cdr);
+
+        pushStack(*funcDef->cdr->car, *arguments);
+
+        SExpression* body = funcDef->cdr->cdr->car;
+
+        SExpression* result = eval(*body);
+
+        popStack();
+
+        delete arguments;
+        delete funcDef;
+
+        return result;
+    }
+
+    delete funcDef;
 
     return expr.clone();
 }

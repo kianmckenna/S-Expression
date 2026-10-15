@@ -1,82 +1,164 @@
-'a
-'(a b c)
-(quote (car x))
+(def sumTo (num)
+    (if
+        (eq? num 0)
+        0
+        (add num (sumTo (sub num 1)))
+    )
+)
 
-(car '(a b c))
-(cdr '(a b c))
-(cons 'a '())
-(cons 'a 'b)
-(cons 'a '(b c))
+(sumTo 10)
 
-(eval '(car '(a b c)))
-(eval '(cdr '(a b c)))
+(def length (list)
+    (if
+       (nil? list)
+       0
+       (add 1 (length (cdr list))) 
+    )
+)
 
-(set a 2)
-a
-x
-(set b 4)
-b
-(set a 7)
-a
+(length '(a b c d e f g h i j k l m n o p q r s t u v w x y z))
 
-(nil? ())
-(nil? 'T)
-(not? ())
-(not? 'T)
+(def sumList (list)
+    (if
+        (nil? list)
+        0
+        (add (car list) (sumList (cdr list)))        
+    )
+)
 
-(atom? x)
-(atom? '(x))
+(sumList '(1 2 3 4))
 
-(list? 'T)
-(list? x)
-(list? '(x))
+(def contains? (item list)
+    (if
+        (nil? list)
+        ()
+        (if 
+            (eq? (car list) item)
+            'T
+            (contains? item (cdr list))
+        )
+    )
+)
 
-(number? 42)
-(number? -17)
-(number? 0)
-(number? abc)
-(number? 12a)
+(set ex '(a b c d))
 
-(eq? 'a 'a)
-(eq? 'a 'b)
-(eq? () ())
-(eq? '(a) '(a))
+(contains? a ex)
 
-(and? 'T 'T)
-(and? 'T ())
-(and? () 'T)
+(contains? l ex)
 
-(or? 'T ())
-(or? () 'T)
-(or? () ())
+(def count (item list)
+    (if
+        (nil? list)
+        0
+        (if
+            (eq? item (car list))
+            (add 1 (count item (cdr list))) 
+            (count item (cdr list))  
+        )
+    )
+)
 
-(and? () (car 'a))
-(or? 'T (car 'a))
+(count 'a '(a b c d a a a a b))
 
-(if 'T 'yes 'no)
-(if () 'yes 'no)
-(if (nil? ()) 'yes 'no)
-(if (nil? 'T) 'yes 'no)
+(def construct (list)
+    (if
+        (nil? list)
+        ()
+        (cons (car list) (construct (cdr list)))
+    )
+)
 
-(cond ('T first))
-(cond (() first 'T second))
-(cond (() first () second 'T third))
-(cond ((nil? ()) first 'T second))
-(cond ((nil? 'T) first 'T second))
-(cond ('T first 'T second 'T third))
+(construct '(a b c))
 
-(add 2 3)
-(add -2 7)
-(sub 10 3)
-(sub 3 10)
-(mul 6 7)
-(div 7 2)
-(rem 7 2)
+(def append (list1 list2)
+    (if
+        (and? (nil? list1) (nil? list2))
+        ()
+        (if
+            (nil? list1)
+            (if
+                (nil? list2)
+                ()
+                (cons
+                    (car list2)
+                    (append list1 (cdr list2))
+                )
+            )
+            (cons
+                (car list1)
+                (append (cdr list1) list2)
+            )
+        )
+    )
+)
 
-(lt 1 2)
-(lt 2 1)
-(lt 2 2)
+(append '(a b) '(c d e))
 
-(add (mul 2 3) 4)
-(sub (add 10 5) (mul 2 3))
-(lt (add 1 2) (mul 2 2))
+(def factorial (num)
+    (if
+        (eq? num 0)
+        1
+        (if
+            (eq? num 1)
+            1
+            (mul num (factorial (sub num 1)))
+        )
+    )
+)
+
+(factorial 5)
+(factorial 0)
+
+(def allNumbers? (list)
+    (if
+        (nil? list)
+        'T
+        (if
+            (number? (car list))
+            (allNumbers? (cdr list))
+            ()
+        )
+    )
+)
+
+(def reverseHelper (list reversed)
+    (if
+        (nil? list)
+        reversed
+        (reverseHelper (cdr list) (cons (car list) reversed))
+    )
+)
+
+(def reverse (list)
+    (reverseHelper list '())
+)
+
+(reverse '(w x y z))
+
+(allNumbers? '(1 2 3 4 5))
+(allNumbers? '(1 2 3 x 5))
+
+(def compare (num1 num2)
+    (if
+        (lt num1 num2)
+        num2
+        num1
+    )
+)
+
+(compare 2 1)
+(compare 3 4)
+
+(def max (list)
+    (if
+        (nil? list)
+        ()
+        (if
+            (nil? (cdr list))
+            (car list)
+            (compare (car list) (max (cdr list)))
+        )
+    )
+)
+
+(max '(4 9 2 7))
