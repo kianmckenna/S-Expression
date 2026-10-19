@@ -1,4 +1,5 @@
 #include "sexpression.h"
+#include "token.h"
 
 #include <iostream>
 #include <fstream>
@@ -9,17 +10,9 @@
 
 using namespace std;
 
-vector<Token> tokenize(const string &input);
-
 int main()
 {
     ifstream file("input.txt");
-
-    if (!file.is_open())
-    {
-        cout << "Error opening file" << endl;
-        return 1;
-    }
 
     stringstream buffer;
     buffer << file.rdbuf();
@@ -50,63 +43,4 @@ int main()
     output.close();
 
     return 0;
-}
-
-vector<Token> tokenize(const string &input)
-{
-    vector<Token> tokens;
-    string current;
-
-    for (char c : input)
-    {
-        if (c == '\'')
-        {
-            if (!current.empty())
-            {
-                tokens.push_back({TokenType::Atom, current});
-                current.clear();
-            }
-
-            tokens.push_back({TokenType::Quote, "\'"});
-        }
-        else if (c == '(')
-        {
-            if (!current.empty())
-            {
-                tokens.push_back({TokenType::Atom, current});
-                current.clear();
-            }
-
-            tokens.push_back({TokenType::LeftParen, "("});
-        }
-        else if (c == ')')
-        {
-            if (!current.empty())
-            {
-                tokens.push_back({TokenType::Atom, current});
-                current.clear();
-            }
-
-            tokens.push_back({TokenType::RightParen, ")"});
-        } 
-        else if (isspace(c))
-        {
-            if (!current.empty())
-            {
-                tokens.push_back({TokenType::Atom, current});
-                current.clear();
-            }
-        }
-        else
-        {
-            current += c;
-        }
-    }
-
-    if (!current.empty())
-    {
-        tokens.push_back({TokenType::Atom, current});
-    }
-
-    return tokens;
 }

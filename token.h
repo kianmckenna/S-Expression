@@ -2,6 +2,7 @@
 #define TOKEN_H
 
 #include <string>
+#include <vector>
 
 enum class TokenType
 {
@@ -11,10 +12,14 @@ enum class TokenType
     Quote
 };
 
-struct Token
+class Token
 {
+public:
+
     TokenType type;
     std::string value;
 };
+
+std::vector<Token> tokenize(const std::string &input);
 
 #endif

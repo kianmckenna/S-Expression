@@ -39,6 +39,8 @@ private:
 
     void parseList(const std::vector<Token>& tokens, size_t& position);
     void printList(std::ostream& output);
+
+    bool printable();
 };
 
 SExpression* car(const SExpression& expr);

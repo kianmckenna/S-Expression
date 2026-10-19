@@ -2,7 +2,7 @@ CXX ?= g++
 CXXFLAGS ?= -std=c++17 -Wall -Wextra -g
 
 TARGET = S_Expr_2
-OBJS = main.o sexpression.o
+OBJS = main.o sexpression.o token.o
 
 .PHONY: all clean
 
@@ -16,6 +16,9 @@ main.o: main.cpp sexpression.h token.h
 
 sexpression.o: sexpression.cpp sexpression.h token.h
 	$(CXX) $(CXXFLAGS) -c sexpression.cpp -o sexpression.o
+
+token.o: token.cpp token.h
+	$(CXX) $(CXXFLAGS) -c token.cpp -o token.o
 
 clean:
 	$(RM) $(OBJS) $(TARGET)

@@ -1,9 +1,12 @@
 #include "sexpression.h"
+#include "token.h"
 
 #include <stdexcept>
 #include <iostream>
 #include <string>
 #include <cctype>
+#include <fstream>
+#include <sstream>
 
 // global variable holder rho
 SExpression* rho = new SExpression();
@@ -105,15 +108,22 @@ void SExpression::parseList(const std::vector<Token>& tokens, size_t& position)
     cdr->parseList(tokens, position);
 }
 
+bool SExpression::printable()
+{
+    if (car->atom == "set" || car->atom == "def" || car->atom == "function" || car->atom == "use")
+    {
+        return false;
+    }
+
+    return true;
+}
+
 void SExpression::print(std::ostream &output)
 {
     bool shouldPrint = true;
     if (isPair() && car->isAtom())
     {
-        if (car->atom == "set" || car->atom == "def" || car->atom == "function")
-        {
-            shouldPrint = false;
-        }
+        shouldPrint = printable();
     }
 
     if (shouldPrint)
@@ -765,6 +775,32 @@ SExpression* eval(const SExpression& expr)
     }
 
     std::string function = expr.car->atom;
+
+    if (function == "use")
+    {
+        std::string libName = expr.cdr->car->atom;
+
+        std::ifstream library(libName); 
+
+        std::stringstream buffer;
+        buffer << library.rdbuf();
+
+        std::string input = buffer.str();
+
+        std::vector<Token> tokens = tokenize(input);
+
+        library.close();
+
+        size_t position = 0;
+
+        while (position < tokens.size())
+        {
+            SExpression libExpr;
+            libExpr.parse(tokens, position);
+
+            eval(libExpr);
+        }
+    }
 
     if (function == "quote")
     {
